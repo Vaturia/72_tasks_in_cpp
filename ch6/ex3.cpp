@@ -1,11 +1,83 @@
 #include <iostream>
 #include <algorithm>
 #include <string>
+#include <sstream>
 #include <time.h>
 #include <stdlib.h>
 #include <list>
 #include <thread>
 #include <chrono>
+template<typename T>
+T getInputValue()
+{
+    T value;
+    while(true)
+    {
+        std::cin >> value;
+        if(std::cin.fail())
+        {
+            std::cin.clear();
+            std::cin.ignore(32000, '\n');
+            std::cout << "Error! Invalid input. Input must be a symbol or number witchout spaces. Retry: ";
+            continue;
+        }
+        std::cin.ignore(100, '\n');
+        return value;
+    }
+    return T(0);
+}
+template<>
+std::string getInputValue()
+{
+
+    std::string buffer;
+    std::string result;
+
+    std::getline(std::cin, buffer);
+    std::stringstream iss(buffer);
+    buffer.clear();
+    while(iss >> buffer)
+    {
+        result += buffer + " ";
+    }
+    return result;
+}
+template<>
+tm getInputValue()
+{
+
+    std::string line;
+    int day, month, year;
+    tm result;
+    while(true)
+    {
+        std::getline(std::cin, line);
+        std::stringstream iss(line);
+        iss >> day >> month >> year;
+        month -= 1;
+        year -= 1900;
+        if(!(day > 0 && day < 32))
+        {
+            std::cout << "Error. Invalid range for day. Input num(1-31). Retry: ";
+            continue;
+        }
+        else if(!(month < 12 && month > -1))
+        {
+            std::cout << "Error.Invalid range fo month. Input num(1-12). Retry: ";
+            continue;
+        }
+        else if(!(year < 9999 && year > 0))
+        {
+            std::cout << "Error. Invalid range for year. Input num(1900+). Retry: ";
+            continue;
+        }
+        result.tm_mday = day;
+        result.tm_mon = month;
+        result.tm_year = year;
+        break;
+    }
+    return result;
+}
 class TicketManager;
 
 class TicketApplication
@@ -20,8 +92,6 @@ private:
         :m_destination(destination), m_flightNumber(flightNumber),
         m_fullNamePassanger(fullNamePAssanger), m_desiredDepartDate(desiredDepartDate)
     {
-        m_desiredDepartDate.tm_mon -= 1;
-        m_desiredDepartDate.tm_year -= 1900;
     }
     friend std::ostream& operator<<(std::ostream &out, TicketApplication ticket);
 
@@ -66,15 +136,14 @@ private:
 
             clearConsole();
             std::cout << "Enter destination: ";
-            std::getline(std::cin, destination);
+            destination = getInputValue<std::string>();
             std::cout << "Enter flight number: ";
-            std::cin >> flightNumber;
-            std::cin.ignore();
-
+            flightNumber = getInputValue<int>();
             std::cout << "Enter full name Passenger: ";
-            std::getline(std::cin, fullNamePassanger);
+            fullNamePassanger = getInputValue<std::string>();
             std::cout << "Enter despired departure date(dd mm yy): ";
-            std::cin >> desiredDepartDate.tm_mday >> desiredDepartDate.tm_mon >> desiredDepartDate.tm_year;
+            desiredDepartDate = getInputValue<tm>();
+            /*std::cin >> desiredDepartDate.tm_mday >> desiredDepartDate.tm_mon >> desiredDepartDate.tm_year;*/
             TicketApplication ticket(destination, flightNumber, fullNamePassanger, desiredDepartDate);
             clearConsole();
             std::cout << "You created\n";
@@ -82,8 +151,7 @@ private:
             std::cout << "Is everything right?(y - yes, n - no): ";
             while(true)
             {
-                std::cin >> choice;
-                std::cin.ignore();
+                choice = getInputValue<char>();
                 if(choice == 'y')
                 {
                     ticketsList.push_back(ticket);
@@ -111,9 +179,9 @@ private:
         std::string passanger;
         int flightNumber;
         std::cout << "Enter full name passenger: ";
-        std::getline(std::cin, passanger);
+        passanger = getInputValue<std::string>();
         std::cout << "Enter flight number: ";
-        std::cin >> flightNumber;
+        flightNumber = getInputValue<int>();
 
         std::cout << "Search...\n";
 
@@ -143,7 +211,7 @@ private:
             std::cout << it;
             char choice;
             std::cout << "Next(n), Exit(any button): ";
-            std::cin >> choice;
+            choice = getInputValue<char>();
             if(choice == 'n' || choice == 'N')
             {
                 std::cout << "=============================================\n";
@@ -174,8 +242,7 @@ public:
             << "Print all application(Enter P/p).\n"
             << "Exit(Enter E/e)\n";
             std::cout << "Enter your choice: ";
-            std::cin >> choice;
-            std::cin.ignore();
+            choice = getInputValue<char>();
             switch (choice)
             {
             case 'A':
