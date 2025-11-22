@@ -29,11 +29,30 @@ T getInputValue()
 template<>
 std::string getInputValue()
 {
-
     std::string buffer;
     std::string result;
 
-    std::getline(std::cin, buffer);
+    while(true)
+    {
+        buffer.clear();
+        std::getline(std::cin, buffer);
+        bool validString = true;
+        for(int i = 0; i < buffer.size() && validString; ++i)
+        {
+            if(isspace(buffer[i]))
+            {
+                continue;
+            }
+            if(!(isalpha(buffer[i])))
+            {
+                std::cout << "Error. Invalid character (" << buffer[i] << ") in (" << buffer << ")\n";
+                std::cout << "Try input again: ";
+                validString = false;
+                break;
+            }
+        }
+        if(validString) {break;};
+    }
     std::stringstream iss(buffer);
     buffer.clear();
     while(iss >> buffer)
